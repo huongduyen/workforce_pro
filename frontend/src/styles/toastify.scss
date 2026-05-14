@@ -1,0 +1,126 @@
+/* Custom Toastify Styles */
+
+.Toastify__toast-container {
+  padding: 0;
+  width: auto;
+  max-width: 400px;
+}
+
+.Toastify__toast {
+  border-radius: 8px;
+  padding: 16px;
+  font-family: inherit;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-bottom: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Success Toast */
+.Toastify__toast--success {
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  color: white;
+
+  .Toastify__toast-icon {
+    color: white;
+  }
+
+  .Toastify__progress-bar {
+    background: rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* Error Toast */
+.Toastify__toast--error {
+  background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
+  color: white;
+
+  .Toastify__toast-icon {
+    color: white;
+  }
+
+  .Toastify__progress-bar {
+    background: rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* Warning Toast */
+.Toastify__toast--warning {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  color: white;
+
+  .Toastify__toast-icon {
+    color: white;
+  }
+
+  .Toastify__progress-bar {
+    background: rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* Info Toast */
+.Toastify__toast--info {
+  background: linear-gradient(135deg, #2196f3 0%, #0b7dda 100%);
+  color: white;
+
+  .Toastify__toast-icon {
+    color: white;
+  }
+
+  .Toastify__progress-bar {
+    background: rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* Loading Toast */
+.Toastify__toast--loading {
+  background: linear-gradient(135deg, #673ab7 0%, #512da8 100%);
+  color: white;
+
+  .Toastify__spinner {
+    border-color: rgba(255, 255, 255, 0.3);
+    border-right-color: white;
+  }
+
+  .Toastify__progress-bar {
+    background: rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* Close Button */
+.Toastify__close-button {
+  color: white;
+  opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+/* Progress Bar */
+.Toastify__progress-bar {
+  height: 4px;
+}
+
+/* Toast Body */
+.Toastify__toast-body {
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Responsive */
+@media only screen and (max-width: 640px) {
+  .Toastify__toast-container {
+    width: calc(100vw - 32px);
+    max-width: 100%;
+    left: 16px !important;
+    right: 16px !important;
+  }
+
+  .Toastify__toast {
+    margin-bottom: 4px;
+    font-size: 13px;
+  }
+}

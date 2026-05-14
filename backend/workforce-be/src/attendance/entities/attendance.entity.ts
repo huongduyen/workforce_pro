@@ -1,6 +1,13 @@
-import { Employee } from 'src/employee/entities/employee.entity';
-import { AttendanceStatus } from 'src/enum/attendance-status.enum';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Employee } from '../../employee/entities/employee.entity';
+import { AttendanceStatus } from '../../enum/attendance-status.enum';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity('attendances')
 export class Attendance {
@@ -11,10 +18,10 @@ export class Attendance {
   date: Date;
 
   @Column({ type: 'time', nullable: true })
-  checkIn: string;
+  checkIn?: string | null;
 
   @Column({ type: 'time', nullable: true })
-  checkOut: string;
+  checkOut?: string | null;
 
   @Column({
     type: 'enum',
@@ -24,9 +31,14 @@ export class Attendance {
   })
   status: AttendanceStatus;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 
-  @ManyToOne(() => Employee, (employee) => employee.attendanceRecords)
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
+
+  @ManyToOne(() => Employee, (employee) => employee.attendanceRecords, {
+    onDelete: 'CASCADE',
+  })
   employee: Employee;
 }

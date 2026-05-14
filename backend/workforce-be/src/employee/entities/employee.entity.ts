@@ -5,12 +5,14 @@ import {
   ManyToOne,
   OneToOne,
   OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
-import { Department } from 'src/department/entities/department.entity';
-import { User } from 'src/user/entities/user.entity';
-import { Attendance } from 'src/attendance/entities/attendance.entity';
-import { LeaveRequest } from 'src/leave-request/entities/leave-request.entity';
+import { Department } from '../../department/entities/department.entity';
+import { User } from '../../user/entities/user.entity';
+import { Attendance } from '../../attendance/entities/attendance.entity';
+import { LeaveRequest } from '../../leave-request/entities/leave-request.entity';
 
 @Entity('employees')
 export class Employee {
@@ -26,8 +28,8 @@ export class Employee {
   @Column({ unique: true })
   employeeId: string;
 
-  @Column({ nullable: true })
-  phoneNumber: string;
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  phoneNumber?: string | null;
 
   @Column({ type: 'date' })
   dateOfBirth: Date;
@@ -38,20 +40,23 @@ export class Employee {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   salary: number;
 
-  @Column({ nullable: true })
-  position: string;
+  @Column({ type: 'varchar', length: 120, nullable: true })
+  position?: string | null;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 
-  @ManyToOne(() => Department, (department) => department.employees)
-  department: Department;
+  @ManyToOne(() => Department, (department) => department.employees, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  department?: Department | null;
 
   @OneToOne(() => User, (user) => user.employee)
-  user: User;
+  user?: User | null;
 
   @OneToMany(() => Attendance, (attendance) => attendance.employee)
   attendanceRecords: Attendance[];

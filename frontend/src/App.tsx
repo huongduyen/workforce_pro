@@ -1,12 +1,13 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { EmployeePage } from './pages/Employee';
 import { LoginPage } from './pages/Login';
+import { Signup } from './pages/Signup';
+import { ToastProvider } from './components/ToastProvider';
+
 // Main App Component
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
+  const [showLogin, setShowLogin] = useState(true);
 
   // Check if user is already logged in on app load
   useEffect(() => {
@@ -23,15 +24,26 @@ function App() {
 
   const handleLogout = () => {
     localStorage.removeItem('access_token');
-    setUser(null);
     setIsAuthenticated(false);
   };
 
   if (isAuthenticated) {
-    return <EmployeePage onLogout={handleLogout} />;
+    return (
+      <ToastProvider>
+        <EmployeePage onLogout={handleLogout} />
+      </ToastProvider>
+    );
   }
 
-  return <LoginPage />;
+  return (
+    <ToastProvider>
+      {showLogin ? (
+        <LoginPage onToggleToSignup={() => setShowLogin(false)} />
+      ) : (
+        <Signup onToggleToLogin={() => setShowLogin(true)} />
+      )}
+    </ToastProvider>
+  );
 }
 
 export default App;

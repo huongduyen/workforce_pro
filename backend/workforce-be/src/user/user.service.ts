@@ -12,7 +12,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import { Role } from 'src/enum/role.enum';
+import { Role } from '../enum/role.enum';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()

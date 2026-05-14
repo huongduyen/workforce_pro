@@ -1,11 +1,11 @@
 .container {
     display: flex;
-    min-height: 100vh; // use min-height instead of fixed 100vh
+    min-height: 100vh; 
     padding: 20px;
     box-sizing: border-box;
     flex-wrap: wrap;
     max-width: 100%;
-    overflow-x: hidden; // prevent horizontal scroll
+    overflow-y: hidden; 
 }
 
 .login-page {
@@ -23,7 +23,6 @@
     justify-content: center;
     align-items: center;
     position: relative;
-    overflow-y: auto;
     max-height: 100%;
 }
 
@@ -92,6 +91,51 @@
         border-color: #40738d;
         background: white;
         box-shadow: 0 0 0 3px rgba(64, 115, 141, 0.1);
+    }
+
+    &:disabled {
+        background: #f0f0f0;
+        color: #999;
+        cursor: not-allowed;
+    }
+}
+
+.password-input-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+
+    .login-input {
+        padding-right: 2.5rem;
+    }
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 0.7rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    transition: color 0.2s ease;
+
+    &:hover:not(:disabled) {
+        color: #40738d;
+    }
+
+    &:disabled {
+        color: #ccc;
+        cursor: not-allowed;
+    }
+
+    svg {
+        width: 20px;
+        height: 20px;
     }
 }
 
@@ -300,6 +344,8 @@
     color: white;
     position: relative;
     border-radius: 10px;
+    overflow: hidden;
+    min-width: 0;
 }
 
 .illustration-content {

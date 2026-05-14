@@ -1,8 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { LeaveRequestService } from './leave-request.service';
 import { CreateLeaveRequestDto } from './dto/create-leave-request.dto';
 import { UpdateLeaveRequestDto } from './dto/update-leave-request.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('leave-request')
 export class LeaveRequestController {
   constructor(private readonly leaveRequestService: LeaveRequestService) {}
@@ -18,17 +30,20 @@ export class LeaveRequestController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.leaveRequestService.findOne(+id);
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.leaveRequestService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLeaveRequestDto: UpdateLeaveRequestDto) {
-    return this.leaveRequestService.update(+id, updateLeaveRequestDto);
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateLeaveRequestDto: UpdateLeaveRequestDto,
+  ) {
+    return this.leaveRequestService.update(id, updateLeaveRequestDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.leaveRequestService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.leaveRequestService.remove(id);
   }
 }
