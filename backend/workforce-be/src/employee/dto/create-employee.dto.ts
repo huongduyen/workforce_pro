@@ -17,10 +17,6 @@ export class CreateEmployeeDto {
   @Length(1, 100)
   lastName: string;
 
-  @IsString()
-  @Length(1, 50)
-  employeeId: string;
-
   @IsOptional()
   @IsString()
   phoneNumber?: string | null;
