@@ -1,6 +1,7 @@
 import type { User } from "../contexts/auth/types";
+import { toastifyService } from "./toastifyService";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "/";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
 class UserService {
   async getProfile(): Promise<User> {
@@ -25,7 +26,7 @@ class UserService {
   async login(credentials: {
     email: string;
     password: string;
-  }): Promise<{ user: User; token: string }> {
+  }): Promise<{ user: User; access_token: string }> {
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: "POST",
       headers: {
@@ -39,7 +40,14 @@ class UserService {
     }
 
     const data = await response.json();
-    localStorage.setItem("access_token", data.token);
+    if (!data.success || !data.access_token) {
+      throw new Error(data.message || "Login failed");
+    }
+
+    localStorage.setItem("access_token", data.access_token);
+    
+    toastifyService.loginSuccess(data.user?.name);
+    
     return data;
   }
 
@@ -47,7 +55,7 @@ class UserService {
     email: string;
     password: string;
   }): Promise<{ user: User; token: string }> {
-    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+    const response = await fetch(`${API_BASE_URL}/user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -60,7 +68,6 @@ class UserService {
     }
 
     const data = await response.json();
-    localStorage.setItem("access_token", data.token);
     return data;
   }
 

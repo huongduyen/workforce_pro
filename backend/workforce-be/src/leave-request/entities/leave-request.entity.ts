@@ -1,7 +1,14 @@
-import { Employee } from 'src/employee/entities/employee.entity';
-import { LeaveStatus } from 'src/enum/leave-status.enum';
-import { LeaveType } from 'src/enum/leave-type.enum';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Employee } from '../../employee/entities/employee.entity';
+import { LeaveStatus } from '../../enum/leave-status.enum';
+import { LeaveType } from '../../enum/leave-type.enum';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity('leave_requests')
 export class LeaveRequest {
@@ -32,9 +39,14 @@ export class LeaveRequest {
   })
   status: LeaveStatus;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 
-  @ManyToOne(() => Employee, (employee) => employee.leaveRequests)
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
+
+  @ManyToOne(() => Employee, (employee) => employee.leaveRequests, {
+    onDelete: 'CASCADE',
+  })
   employee: Employee;
 }

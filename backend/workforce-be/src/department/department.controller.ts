@@ -1,8 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { DepartmentService } from './department.service';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('department')
 export class DepartmentController {
   constructor(private readonly departmentService: DepartmentService) {}
@@ -18,17 +30,20 @@ export class DepartmentController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.departmentService.findOne(+id);
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.departmentService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDepartmentDto: UpdateDepartmentDto) {
-    return this.departmentService.update(+id, updateDepartmentDto);
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateDepartmentDto: UpdateDepartmentDto,
+  ) {
+    return this.departmentService.update(id, updateDepartmentDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.departmentService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.departmentService.remove(id);
   }
 }

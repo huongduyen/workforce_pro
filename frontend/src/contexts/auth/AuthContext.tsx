@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { createContext, useEffect, useReducer, type Dispatch, type FC, type ReactNode } from "react";
-import type { AuthState, User } from "./types";
+import type { AuthState } from "./types";
 import { authReducer } from "./reducers";
 import { userService } from "../../services/userService";
 

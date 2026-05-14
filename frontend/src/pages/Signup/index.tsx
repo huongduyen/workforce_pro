@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -10,13 +11,13 @@ import {
   Button,
   Typography,
   Alert,
-  Grid,
   Link,
   CircularProgress,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
-import { useAuth } from "../../hooks/useAuth";
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { userService } from "../../services/userService";
-import { AuthActionType } from "../../contexts/auth/AuthContext";
 import { signupSchema } from "./helpers";
 import { StyledCard, StyledContainer } from "../styles";
 
@@ -29,7 +30,10 @@ interface SignupProps {
 export const Signup = ({ onToggleToLogin }: SignupProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { dispatch } = useAuth();
+  const [success, setSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // const { dispatch } = useAuth();
 
   const form = useForm<SignupFormData>({
     resolver: yupResolver(signupSchema),
@@ -43,17 +47,22 @@ export const Signup = ({ onToggleToLogin }: SignupProps) => {
   const onSubmit = async (data: SignupFormData) => {
     setIsLoading(true);
     setError("");
+    setSuccess(false);
 
     try {
       // Only send email and password to the service
       const { confirmPassword, ...signupData } = data;
-      const response = await userService.register(signupData);
-      dispatch({
-        type: AuthActionType.REGISTER,
-        payload: { user: response.user },
-      });
-    } catch (err) {
-      setError("Registration failed. Please try again.");
+      await userService.register(signupData);
+      setSuccess(true);
+      form.reset();
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        if (onToggleToLogin) {
+          onToggleToLogin();
+        }
+      }, 2000);
+    } catch (err: any) {
+      setError(err.message || "Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -85,6 +94,13 @@ export const Signup = ({ onToggleToLogin }: SignupProps) => {
             </Alert>
           )}
 
+          {/* Success Alert */}
+          {success && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              Account created successfully! Redirecting to login...
+            </Alert>
+          )}
+
           {/* Signup Form */}
           <Box
             component="form"
@@ -106,22 +122,48 @@ export const Signup = ({ onToggleToLogin }: SignupProps) => {
               fullWidth
               margin="normal"
               label="Password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               {...form.register("password")}
               error={!!form.formState.errors.password}
               helperText={form.formState.errors.password?.message}
               disabled={isLoading}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                      disabled={isLoading}
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
 
             <TextField
               fullWidth
               margin="normal"
               label="Confirm Password"
-              type="password"
+              type={showConfirmPassword ? "text" : "password"}
               {...form.register("confirmPassword")}
               error={!!form.formState.errors.confirmPassword}
               helperText={form.formState.errors.confirmPassword?.message}
               disabled={isLoading}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      edge="end"
+                      disabled={isLoading}
+                    >
+                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
 
             <Button

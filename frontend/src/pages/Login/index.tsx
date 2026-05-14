@@ -1,12 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { userService } from "../../services/userService";
+import { toastifyService } from "../../services/toastifyService";
+import { Illustration } from "./Illustration";
 import "./styles.scss";
 
-export function LoginPage() {
+interface LoginPageProps {
+  onToggleToSignup?: () => void;
+}
+
+export function LoginPage({ onToggleToSignup }: LoginPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { handleSubmit, control } = useForm();
 
@@ -19,32 +28,22 @@ export function LoginPage() {
     console.log("Login attempt:", { email, password, rememberMe });
 
     try {
-      const response = await fetch("http://localhost:3000/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Login successful:", data);
-
-        if (data.token || data.access_token) {
-          localStorage.setItem("access_token", data.token || data.access_token);
-          if (rememberMe) {
-            localStorage.setItem("remember_user", email);
-          }
-          window.location.reload();
-        }
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || "Login failed");
+      // Call userService which handles the toast
+      await userService.login({ email, password });
+      
+      if (rememberMe) {
+        localStorage.setItem("remember_user", email);
       }
-    } catch (error) {
-      console.error("Network error:", error);
-      setError("Cannot connect to server. Make sure backend is running.");
+      
+      // Reload to show dashboard
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } catch (error: any) {
+      console.error("Login error:", error);
+      // Show error toast
+      toastifyService.error(error.message || "Login failed");
+      setError(error.message || "Login failed");
     } finally {
       setIsLoading(false);
     }
@@ -93,21 +92,31 @@ export function LoginPage() {
 
             <div className="form-group">
               <label className="form-label">Password</label>
-              <Controller
-                name="password"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <input
-                    type="password"
-                    placeholder="Enter your password"
-                    {...field}
-                    required
-                    disabled={isLoading}
-                    className="login-input"
-                  />
-                )}
-              />
+              <div className="password-input-wrapper">
+                <Controller
+                  name="password"
+                  control={control}
+                  defaultValue=""
+                  render={({ field }) => (
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Enter your password"
+                      {...field}
+                      required
+                      disabled={isLoading}
+                      className="login-input"
+                    />
+                  )}
+                />
+                <button
+                  type="button"
+                  className="password-toggle-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                  disabled={isLoading}
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </button>
+              </div>
             </div>
 
             <div className="form-options">
@@ -186,7 +195,14 @@ export function LoginPage() {
             <div className="signup-link">
               <p>
                 Don't have an account?{" "}
-                <a href="#" className="link">
+                <a
+                  href="#"
+                  className="link"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onToggleToSignup?.();
+                  }}
+                >
                   Sign up here
                 </a>
               </p>
@@ -195,33 +211,7 @@ export function LoginPage() {
         </div>
       </div>
 
-      <div className="illustration-container">
-        <div className="background-shapes">
-          <div className="shape-1"></div>
-          <div className="shape-2"></div>
-          <div className="shape-3"></div>
-        </div>
-
-        <div className="illustration-content">
-          <h2 className="illustration-title">Workforce Pro</h2>
-          <p className="illustration-subtitle">
-            Streamline your workforce management with our comprehensive platform
-          </p>
-
-          <ul className="feature-list">
-            <li className="feature-item">Employee Management</li>
-            <li className="feature-item">Time & Attendance Tracking</li>
-            <li className="feature-item">Leave Management</li>
-            <li className="feature-item">Performance Analytics</li>
-            <li className="feature-item">Real-time Reporting</li>
-          </ul>
-
-          <p style={{ opacity: 0.8, fontSize: "0.9rem" }}>
-            Join thousands of companies that trust Workforce Pro for their HR
-            needs
-          </p>
-        </div>
-      </div>
+      <Illustration />
     </div>
   );
 }

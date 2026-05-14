@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
-import { Employee } from 'src/employee/entities/employee.entity';
-import { Role } from 'src/enum/role.enum';
+import { Employee } from '../../employee/entities/employee.entity';
+import { Role } from '../../enum/role.enum';
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('users')
@@ -31,7 +31,10 @@ export class User {
   @UpdateDateColumn({ type: 'timestamp' }) 
   updatedAt: Date;
 
-  @OneToOne(() => Employee, (employee) => employee.user)
+  @OneToOne(() => Employee, (employee: Employee) => employee.user, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
   @JoinColumn()
-  employee: Employee;
+  employee?: Employee | null;
 }
