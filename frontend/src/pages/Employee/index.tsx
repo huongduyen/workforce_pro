@@ -1,40 +1,18 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type FormEvent,
-  type ReactNode,
-} from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 import AddIcon from "@mui/icons-material/Add";
-import CloseIcon from "@mui/icons-material/Close";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import LogoutIcon from "@mui/icons-material/Logout";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import SaveIcon from "@mui/icons-material/Save";
 import {
   Alert,
   Box,
   Button,
-  Chip,
   CircularProgress,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogTitle,
   IconButton,
   MenuItem,
   Paper,
   Stack,
-  Tab,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Tabs,
   TextField,
   Tooltip,
   Typography,
@@ -54,136 +32,45 @@ import {
   type LeaveType,
 } from "../../services/employeeService";
 import { toastifyService } from "../../services/toastifyService";
+import { MainLayout } from "../../components/MainLayout";
+import {
+  EmployeeTable,
+  FormActions,
+} from "./components";
 
-type TabKey = "employees" | "departments" | "attendance" | "leave";
-type DialogMode = "create" | "edit";
+import {
+  emptyEmployeeForm,
+  formatDate,
+  getEmployeeName,
+  nullableText,
+  toDateInput,
+  toTimeInput,
+} from "./helpers";
+import type {
+  DialogState,
+  EmployeeFormState,
+  EmployeePageProps,
+  TabKey,
+} from "./types";
+import { DepartmentTable } from "../Department/component";
+import { LeaveRequestTable } from "../LeaveRequest/component";
+import { AttendanceTable } from "../Attendance/component";
+import {
+  emptyDepartmentForm,
+  type DepartmentFormState,
+} from "../Department/types";
+import {
+  emptyAttendanceForm,
+  type AttendanceFormState,
+} from "../Attendance/types";
+import {
+  emptyLeaveRequestForm,
+  type LeaveRequestFormState,
+} from "../LeaveRequest/types";
+import { attendanceStatusLabels } from "../Attendance/helpers";
+import { leaveStatusLabels, leaveTypeLabels } from "../LeaveRequest/helpers";
 
-interface DialogState {
-  type: TabKey;
-  mode: DialogMode;
-  id?: string;
-}
-
-interface EmployeeFormState {
-  employeeId: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  dateOfBirth: string;
-  hireDate: string;
-  salary: string;
-  position: string;
-  departmentId: string;
-}
-
-interface DepartmentFormState {
-  name: string;
-  description: string;
-}
-
-interface AttendanceFormState {
-  employeeId: string;
-  date: string;
-  checkIn: string;
-  checkOut: string;
-  status: AttendanceStatus;
-}
-
-interface LeaveRequestFormState {
-  employeeId: string;
-  type: LeaveType;
-  startDate: string;
-  endDate: string;
-  reason: string;
-  status: LeaveStatus;
-}
-
-const tabs: Array<{ key: TabKey; label: string; createLabel: string }> = [
-  { key: "employees", label: "Employees", createLabel: "New employee" },
-  { key: "departments", label: "Departments", createLabel: "New department" },
-  { key: "attendance", label: "Attendance", createLabel: "New attendance" },
-  { key: "leave", label: "Leave Requests", createLabel: "New leave request" },
-];
-
-const attendanceStatusLabels: Record<AttendanceStatus, string> = {
-  present: "Present",
-  absent: "Absent",
-  late: "Late",
-  half_day: "Half day",
-};
-
-const attendanceStatusColors: Record<
-  AttendanceStatus,
-  "default" | "success" | "warning" | "error" | "info"
-> = {
-  present: "success",
-  absent: "error",
-  late: "warning",
-  half_day: "info",
-};
-
-const leaveTypeLabels: Record<LeaveType, string> = {
-  sick_leave: "Sick",
-  vacation_leave: "Vacation",
-  personal_leave: "Personal",
-  maternity_leave: "Maternity",
-  paternity_leave: "Paternity",
-};
-
-const leaveStatusLabels: Record<LeaveStatus, string> = {
-  pending: "Pending",
-  approved: "Approved",
-  rejected: "Rejected",
-  cancelled: "Cancelled",
-};
-
-const leaveStatusColors: Record<
-  LeaveStatus,
-  "default" | "success" | "warning" | "error" | "info"
-> = {
-  pending: "warning",
-  approved: "success",
-  rejected: "error",
-  cancelled: "default",
-};
-
-const todayInput = () => new Date().toISOString().slice(0, 10);
-
-const emptyEmployeeForm = (): EmployeeFormState => ({
-  employeeId: "",
-  firstName: "",
-  lastName: "",
-  phoneNumber: "",
-  dateOfBirth: "",
-  hireDate: todayInput(),
-  salary: "",
-  position: "",
-  departmentId: "",
-});
-
-const emptyDepartmentForm = (): DepartmentFormState => ({
-  name: "",
-  description: "",
-});
-
-const emptyAttendanceForm = (): AttendanceFormState => ({
-  employeeId: "",
-  date: todayInput(),
-  checkIn: "",
-  checkOut: "",
-  status: "present",
-});
-
-const emptyLeaveRequestForm = (): LeaveRequestFormState => ({
-  employeeId: "",
-  type: "sick_leave",
-  startDate: todayInput(),
-  endDate: todayInput(),
-  reason: "",
-  status: "pending",
-});
-
-export function EmployeePage({ onLogout }: { onLogout: () => void }) {
+export function EmployeePage({ onLogout, onPageChange }: EmployeePageProps) {
   const [activeTab, setActiveTab] = useState<TabKey>("employees");
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -205,10 +92,7 @@ export function EmployeePage({ onLogout }: { onLogout: () => void }) {
   const [leaveRequestForm, setLeaveRequestForm] =
     useState<LeaveRequestFormState>(emptyLeaveRequestForm);
 
-  const activeTabConfig = useMemo(
-    () => tabs.find((tab) => tab.key === activeTab) ?? tabs[0],
-    [activeTab],
-  );
+
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -269,7 +153,6 @@ export function EmployeePage({ onLogout }: { onLogout: () => void }) {
 
   const openEmployeeEdit = (employee: Employee) => {
     setEmployeeForm({
-      employeeId: employee.employeeId,
       firstName: employee.firstName,
       lastName: employee.lastName,
       phoneNumber: employee.phoneNumber ?? "",
@@ -318,7 +201,6 @@ export function EmployeePage({ onLogout }: { onLogout: () => void }) {
     setIsSaving(true);
 
     const payload: EmployeePayload = {
-      employeeId: employeeForm.employeeId.trim(),
       firstName: employeeForm.firstName.trim(),
       lastName: employeeForm.lastName.trim(),
       phoneNumber: nullableText(employeeForm.phoneNumber),
@@ -474,82 +356,87 @@ export function EmployeePage({ onLogout }: { onLogout: () => void }) {
   };
 
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "#f6f8fb", p: { xs: 2, md: 3 } }}>
+    <MainLayout
+      activeTab={activeTab}
+      onTabChange={(tab) => {
+        setActiveTab(tab);
+        onPageChange?.(tab);
+      }}
+      onLogout={onLogout}
+    >
       <Stack
         direction={{ xs: "column", sm: "row" }}
         justifyContent="space-between"
         alignItems={{ xs: "stretch", sm: "center" }}
         spacing={2}
-        sx={{ mb: 2 }}
+        sx={{ mb: 3 }}
       >
-        <Typography variant="h4" component="h1" fontWeight={700}>
-          Workforce
-        </Typography>
-
-        <Stack direction="row" spacing={1} justifyContent="flex-end">
-          <Tooltip title="Refresh">
-            <span>
-              <IconButton
-                onClick={() => void loadData()}
-                disabled={isLoading || isSaving}
-                aria-label="Refresh"
-              >
-                <RefreshIcon />
-              </IconButton>
-            </span>
-          </Tooltip>
-          <Tooltip title="Logout">
-            <IconButton onClick={onLogout} aria-label="Logout">
-              <LogoutIcon />
-            </IconButton>
-          </Tooltip>
+        <Stack>
+          <Typography variant="h4" component="h1" fontWeight={700} sx={{ color: '#1a1f2e' }}>
+            Employees
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#6b7280', mt: 0.5 }}>
+            Manage your workforce data
+          </Typography>
         </Stack>
+
+        <Tooltip title="Refresh">
+          <span>
+            <IconButton
+              onClick={() => void loadData()}
+              disabled={isLoading || isSaving}
+              aria-label="Refresh"
+              sx={{
+                bgcolor: 'rgba(102, 126, 234, 0.1)',
+                color: '#667eea',
+                '&:hover': {
+                  bgcolor: 'rgba(102, 126, 234, 0.2)',
+                },
+              }}
+            >
+              <RefreshIcon />
+            </IconButton>
+          </span>
+        </Tooltip>
       </Stack>
+
+      {loadError && (
+        <Alert severity="error" sx={{ mb: 2, borderRadius: '12px' }}>
+          {loadError}
+        </Alert>
+      )}
 
       <Paper
         variant="outlined"
         sx={{
-          borderRadius: 1,
-          mb: 2,
+          borderRadius: '12px',
+          mb: 3,
           overflow: "hidden",
-          borderColor: "#dde4ee",
+          border: '1px solid rgba(102, 126, 234, 0.2)',
+          background: 'rgba(255, 255, 255, 0.7)',
+          backdropFilter: 'blur(10px)',
+          p: 2,
         }}
       >
-        <Stack
-          direction={{ xs: "column", md: "row" }}
-          justifyContent="space-between"
-          alignItems={{ xs: "stretch", md: "center" }}
-          spacing={1}
-          sx={{ px: 2, py: 1 }}
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={openCreateDialog}
+          disabled={isSaving}
+          sx={{
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            borderRadius: '8px',
+            textTransform: 'none',
+            fontSize: '14px',
+            fontWeight: 600,
+            '&:hover': {
+              background: 'linear-gradient(135deg, #5568d3 0%, #6a3d92 100%)',
+            },
+          }}
         >
-          <Tabs
-            value={activeTab}
-            onChange={(_, value: TabKey) => setActiveTab(value)}
-            variant="scrollable"
-            scrollButtons="auto"
-          >
-            {tabs.map((tab) => (
-              <Tab key={tab.key} value={tab.key} label={tab.label} />
-            ))}
-          </Tabs>
-
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={openCreateDialog}
-            disabled={isSaving}
-            sx={{ alignSelf: { xs: "flex-start", md: "center" } }}
-          >
-            {activeTabConfig.createLabel}
-          </Button>
-        </Stack>
+          Add Employee
+        </Button>
       </Paper>
-
-      {loadError && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {loadError}
-        </Alert>
-      )}
 
       <Box sx={{ position: "relative" }}>
         {isLoading && (
@@ -560,7 +447,8 @@ export function EmployeePage({ onLogout }: { onLogout: () => void }) {
               position: "absolute",
               inset: 0,
               zIndex: 1,
-              bgcolor: "rgba(246, 248, 251, 0.65)",
+              bgcolor: "rgba(255, 255, 255, 0.7)",
+              borderRadius: '12px',
             }}
           >
             <CircularProgress />
@@ -642,27 +530,6 @@ export function EmployeePage({ onLogout }: { onLogout: () => void }) {
               }}
             >
               <TextField
-                label="Employee ID"
-                value={employeeForm.employeeId}
-                onChange={(event) =>
-                  setEmployeeForm((form) => ({
-                    ...form,
-                    employeeId: event.target.value,
-                  }))
-                }
-                required
-              />
-              <TextField
-                label="Position"
-                value={employeeForm.position}
-                onChange={(event) =>
-                  setEmployeeForm((form) => ({
-                    ...form,
-                    position: event.target.value,
-                  }))
-                }
-              />
-              <TextField
                 label="First name"
                 value={employeeForm.firstName}
                 onChange={(event) =>
@@ -712,6 +579,16 @@ export function EmployeePage({ onLogout }: { onLogout: () => void }) {
                   </MenuItem>
                 ))}
               </TextField>
+              <TextField
+                label="Position"
+                value={employeeForm.position}
+                onChange={(event) =>
+                  setEmployeeForm((form) => ({
+                    ...form,
+                    position: event.target.value,
+                  }))
+                }
+              />
               <TextField
                 label="Date of birth"
                 type="date"
@@ -1011,311 +888,6 @@ export function EmployeePage({ onLogout }: { onLogout: () => void }) {
           <FormActions isSaving={isSaving} onClose={closeDialog} />
         </Box>
       </Dialog>
-    </Box>
+    </MainLayout>
   );
-}
-
-function EmployeeTable({
-  employees,
-  onEdit,
-  onDelete,
-}: {
-  employees: Employee[];
-  onEdit: (employee: Employee) => void;
-  onDelete: (employee: Employee) => void;
-}) {
-  return (
-    <TableShell>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Employee ID</TableCell>
-            <TableCell>Name</TableCell>
-            <TableCell>Department</TableCell>
-            <TableCell>Position</TableCell>
-            <TableCell>Hire Date</TableCell>
-            <TableCell align="right">Salary</TableCell>
-            <TableCell align="right">Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {employees.length === 0 && <EmptyRow colSpan={7} label="No employees" />}
-          {employees.map((employee) => (
-            <TableRow key={employee.id} hover>
-              <TableCell>{employee.employeeId}</TableCell>
-              <TableCell>{getEmployeeName(employee)}</TableCell>
-              <TableCell>{employee.department?.name ?? "-"}</TableCell>
-              <TableCell>{employee.position || "-"}</TableCell>
-              <TableCell>{formatDate(employee.hireDate)}</TableCell>
-              <TableCell align="right">{formatMoney(employee.salary)}</TableCell>
-              <ActionCell
-                onEdit={() => onEdit(employee)}
-                onDelete={() => onDelete(employee)}
-              />
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableShell>
-  );
-}
-
-function DepartmentTable({
-  departments,
-  onEdit,
-  onDelete,
-}: {
-  departments: Department[];
-  onEdit: (department: Department) => void;
-  onDelete: (department: Department) => void;
-}) {
-  return (
-    <TableShell>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell>Description</TableCell>
-            <TableCell align="right">Employees</TableCell>
-            <TableCell align="right">Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {departments.length === 0 && (
-            <EmptyRow colSpan={4} label="No departments" />
-          )}
-          {departments.map((department) => (
-            <TableRow key={department.id} hover>
-              <TableCell>{department.name}</TableCell>
-              <TableCell>{department.description || "-"}</TableCell>
-              <TableCell align="right">
-                {department.employees?.length ?? 0}
-              </TableCell>
-              <ActionCell
-                onEdit={() => onEdit(department)}
-                onDelete={() => onDelete(department)}
-              />
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableShell>
-  );
-}
-
-function AttendanceTable({
-  attendance,
-  onEdit,
-  onDelete,
-}: {
-  attendance: Attendance[];
-  onEdit: (record: Attendance) => void;
-  onDelete: (record: Attendance) => void;
-}) {
-  return (
-    <TableShell>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Date</TableCell>
-            <TableCell>Employee</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell>Check In</TableCell>
-            <TableCell>Check Out</TableCell>
-            <TableCell align="right">Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {attendance.length === 0 && (
-            <EmptyRow colSpan={6} label="No attendance records" />
-          )}
-          {attendance.map((record) => (
-            <TableRow key={record.id} hover>
-              <TableCell>{formatDate(record.date)}</TableCell>
-              <TableCell>{getEmployeeName(record.employee)}</TableCell>
-              <TableCell>
-                <Chip
-                  size="small"
-                  label={attendanceStatusLabels[record.status]}
-                  color={attendanceStatusColors[record.status]}
-                  variant="outlined"
-                />
-              </TableCell>
-              <TableCell>{toTimeInput(record.checkIn) || "-"}</TableCell>
-              <TableCell>{toTimeInput(record.checkOut) || "-"}</TableCell>
-              <ActionCell
-                onEdit={() => onEdit(record)}
-                onDelete={() => onDelete(record)}
-              />
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableShell>
-  );
-}
-
-function LeaveRequestTable({
-  leaveRequests,
-  onEdit,
-  onDelete,
-}: {
-  leaveRequests: LeaveRequest[];
-  onEdit: (request: LeaveRequest) => void;
-  onDelete: (request: LeaveRequest) => void;
-}) {
-  return (
-    <TableShell>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Employee</TableCell>
-            <TableCell>Type</TableCell>
-            <TableCell>Dates</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell>Reason</TableCell>
-            <TableCell align="right">Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {leaveRequests.length === 0 && (
-            <EmptyRow colSpan={6} label="No leave requests" />
-          )}
-          {leaveRequests.map((request) => (
-            <TableRow key={request.id} hover>
-              <TableCell>{getEmployeeName(request.employee)}</TableCell>
-              <TableCell>{leaveTypeLabels[request.type]}</TableCell>
-              <TableCell>
-                {formatDate(request.startDate)} to {formatDate(request.endDate)}
-              </TableCell>
-              <TableCell>
-                <Chip
-                  size="small"
-                  label={leaveStatusLabels[request.status]}
-                  color={leaveStatusColors[request.status]}
-                  variant="outlined"
-                />
-              </TableCell>
-              <TableCell>{request.reason}</TableCell>
-              <ActionCell
-                onEdit={() => onEdit(request)}
-                onDelete={() => onDelete(request)}
-              />
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableShell>
-  );
-}
-
-function TableShell({ children }: { children: ReactNode }) {
-  return (
-    <TableContainer
-      component={Paper}
-      variant="outlined"
-      sx={{ borderRadius: 1, borderColor: "#dde4ee" }}
-    >
-      {children}
-    </TableContainer>
-  );
-}
-
-function EmptyRow({ colSpan, label }: { colSpan: number; label: string }) {
-  return (
-    <TableRow>
-      <TableCell colSpan={colSpan} align="center" sx={{ py: 5, color: "#64748b" }}>
-        {label}
-      </TableCell>
-    </TableRow>
-  );
-}
-
-function ActionCell({
-  onEdit,
-  onDelete,
-}: {
-  onEdit: () => void;
-  onDelete: () => void;
-}) {
-  return (
-    <TableCell align="right">
-      <Tooltip title="Edit">
-        <IconButton onClick={onEdit} aria-label="Edit" size="small">
-          <EditIcon fontSize="small" />
-        </IconButton>
-      </Tooltip>
-      <Tooltip title="Delete">
-        <IconButton onClick={onDelete} aria-label="Delete" size="small">
-          <DeleteIcon fontSize="small" />
-        </IconButton>
-      </Tooltip>
-    </TableCell>
-  );
-}
-
-function FormActions({
-  isSaving,
-  onClose,
-}: {
-  isSaving: boolean;
-  onClose: () => void;
-}) {
-  return (
-    <DialogActions>
-      <Button
-        type="button"
-        startIcon={<CloseIcon />}
-        onClick={onClose}
-        disabled={isSaving}
-      >
-        Cancel
-      </Button>
-      <Button
-        type="submit"
-        variant="contained"
-        startIcon={isSaving ? <CircularProgress size={18} /> : <SaveIcon />}
-        disabled={isSaving}
-      >
-        Save
-      </Button>
-    </DialogActions>
-  );
-}
-
-function getEmployeeName(employee?: Employee | null): string {
-  if (!employee) {
-    return "-";
-  }
-
-  return `${employee.firstName} ${employee.lastName}`.trim();
-}
-
-function nullableText(value: string): string | null {
-  return value.trim() || null;
-}
-
-function toDateInput(value?: string | Date | null): string {
-  return value ? String(value).slice(0, 10) : "";
-}
-
-function toTimeInput(value?: string | null): string {
-  return value ? String(value).slice(0, 5) : "";
-}
-
-function formatDate(value?: string | Date | null): string {
-  return toDateInput(value) || "-";
-}
-
-function formatMoney(value: number | string): string {
-  const amount = Number(value);
-
-  if (Number.isNaN(amount)) {
-    return "-";
-  }
-
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount);
 }

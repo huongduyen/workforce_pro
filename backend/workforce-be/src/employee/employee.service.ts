@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -23,17 +24,16 @@ export class EmployeeService {
   ) {}
 
   async create(createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
-    await this.ensureEmployeeIdIsAvailable(createEmployeeDto.employeeId);
-
     const department = await this.resolveDepartment(
       createEmployeeDto.departmentId,
     );
     const user = await this.resolveAvailableUser(createEmployeeDto.userId);
+    const employeeId = await this.generateEmployeeId();
 
     const employee = this.employeeRepository.create({
       firstName: createEmployeeDto.firstName.trim(),
       lastName: createEmployeeDto.lastName.trim(),
-      employeeId: createEmployeeDto.employeeId.trim(),
+      employeeId,
       phoneNumber: createEmployeeDto.phoneNumber?.trim() || null,
       dateOfBirth: new Date(createEmployeeDto.dateOfBirth),
       hireDate: new Date(createEmployeeDto.hireDate),
@@ -81,14 +81,6 @@ export class EmployeeService {
     updateEmployeeDto: UpdateEmployeeDto,
   ): Promise<Employee> {
     const employee = await this.findOne(id);
-
-    if (
-      updateEmployeeDto.employeeId &&
-      updateEmployeeDto.employeeId.trim() !== employee.employeeId
-    ) {
-      await this.ensureEmployeeIdIsAvailable(updateEmployeeDto.employeeId, id);
-      employee.employeeId = updateEmployeeDto.employeeId.trim();
-    }
 
     if (updateEmployeeDto.firstName !== undefined) {
       employee.firstName = updateEmployeeDto.firstName.trim();
@@ -139,17 +131,19 @@ export class EmployeeService {
     await this.employeeRepository.remove(employee);
   }
 
-  private async ensureEmployeeIdIsAvailable(
-    employeeId: string,
-    ignoredEmployeeId?: string,
-  ): Promise<void> {
-    const existingEmployee = await this.employeeRepository.findOne({
-      where: { employeeId: employeeId.trim() },
-    });
+  private async generateEmployeeId(): Promise<string> {
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const employeeId = `EMP-${randomUUID().slice(0, 8).toUpperCase()}`;
+      const existingEmployee = await this.employeeRepository.findOne({
+        where: { employeeId },
+      });
 
-    if (existingEmployee && existingEmployee.id !== ignoredEmployeeId) {
-      throw new ConflictException('Employee with this employee ID already exists');
+      if (!existingEmployee) {
+        return employeeId;
+      }
     }
+
+    throw new ConflictException('Unable to generate a unique employee ID');
   }
 
   private async resolveDepartment(
@@ -172,7 +166,9 @@ export class EmployeeService {
     return department;
   }
 
-  private async resolveAvailableUser(userId?: string | null): Promise<User | null> {
+  private async resolveAvailableUser(
+    userId?: string | null,
+  ): Promise<User | null> {
     if (!userId) {
       return null;
     }

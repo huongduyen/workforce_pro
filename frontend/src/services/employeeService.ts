@@ -61,7 +61,6 @@ export interface LeaveRequest {
 export interface EmployeePayload {
   firstName: string;
   lastName: string;
-  employeeId: string;
   phoneNumber?: string | null;
   dateOfBirth: string;
   hireDate: string;
