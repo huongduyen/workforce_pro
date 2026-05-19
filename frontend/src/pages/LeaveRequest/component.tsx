@@ -7,8 +7,8 @@ import {
   TableRow,
 } from "@mui/material";
 import type { LeaveRequestTableProps } from "./types";
-import { ActionCell, EmptyRow, TableShell } from "../Employee/components";
-import { formatDate, getEmployeeName } from "../Employee/helpers";
+import { ActionCell, EmptyRow, TableShell } from "../../components/DataTable";
+import { formatDate, getEmployeeName } from "../../utils/workforce";
 import { leaveStatusColors, leaveStatusLabels, leaveTypeLabels } from "./constants";
 
 export function LeaveRequestTable({

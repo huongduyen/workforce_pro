@@ -25,16 +25,16 @@ import {
 } from "../../services/employeeService";
 import { toastifyService } from "../../services/toastifyService";
 import { MainLayout } from "../../components/MainLayout";
-import {   FormActions } from "../Employee/components";
+import { FormActions } from "../../components/FormActions";
 import {
   toDateInput,
   toTimeInput,
   formatDate,
   getEmployeeName,
   nullableText,
-} from "../Employee/helpers";
+} from "../../utils/workforce";
 import { emptyAttendanceForm, type AttendanceFormState, type AttendancePageProps, type DialogState } from "./types";
-import { attendanceStatusLabels } from "./helpers";
+import { attendanceStatusLabels } from "./constants";
 import { AttendanceTable } from "./component";
 
 

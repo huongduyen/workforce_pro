@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Visibility, VisibilityOff } from '@mui/icons-material';
@@ -11,21 +10,27 @@ interface LoginPageProps {
   onToggleToSignup?: () => void;
 }
 
+interface LoginFormData {
+  email: string;
+  password: string;
+}
+
 export function LoginPage({ onToggleToSignup }: LoginPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const { handleSubmit, control } = useForm();
+  const { handleSubmit, control } = useForm<LoginFormData>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async ({ email, password }: LoginFormData) => {
     setIsLoading(true);
     setError("");
-
-    const { email, password } = data;
-
-    console.log("Login attempt:", { email, password, rememberMe });
 
     try {
       // Call userService which handles the toast
@@ -39,22 +44,22 @@ export function LoginPage({ onToggleToSignup }: LoginPageProps) {
       setTimeout(() => {
         window.location.reload();
       }, 500);
-    } catch (error: any) {
-      console.error("Login error:", error);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Login failed";
       // Show error toast
-      toastifyService.error(error.message || "Login failed");
-      setError(error.message || "Login failed");
+      toastifyService.error(message);
+      setError(message);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSocialLogin = (provider: string) => {
-    console.log(`Login with ${provider}`);
+    toastifyService.info(`${provider} login is not available yet`);
   };
 
   const handleForgotPassword = () => {
-    console.log("Forgot password clicked");
+    toastifyService.info("Password reset is not available yet");
   };
 
   return (

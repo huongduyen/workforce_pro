@@ -1,4 +1,4 @@
-import type { TabKey } from "../../pages/Employee/types";
+import type { TabKey } from "../../types/navigation";
 import PeopleIcon from '@mui/icons-material/People';
 import BusinessIcon from '@mui/icons-material/Business';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';

@@ -1,5 +1,7 @@
+import type { ChipProps } from "@mui/material";
 import type { LeaveStatus, LeaveType } from "../../services/employeeService";
-import type { StatusChipColor } from "../Employee/types";
+
+type StatusChipColor = ChipProps["color"];
 
 export const leaveTypeLabels: Record<LeaveType, string> = {
   sick_leave: "Sick",

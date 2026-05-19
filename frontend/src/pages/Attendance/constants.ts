@@ -1,5 +1,7 @@
+import type { ChipProps } from "@mui/material";
 import type { AttendanceStatus } from "../../services/employeeService";
-import type { StatusChipColor } from "../Employee/types";
+
+type StatusChipColor = ChipProps["color"];
 
 export const attendanceStatusLabels: Record<AttendanceStatus, string> = {
   present: "Present",

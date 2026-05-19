@@ -26,15 +26,15 @@ import {
 } from "../../services/employeeService";
 import { toastifyService } from "../../services/toastifyService";
 import { MainLayout } from "../../components/MainLayout";
-import {  FormActions } from "../Employee/components";
-import { toDateInput, getEmployeeName } from "../Employee/helpers";
+import { FormActions } from "../../components/FormActions";
+import { toDateInput, getEmployeeName } from "../../utils/workforce";
 import {
   emptyLeaveRequestForm,
   type DialogState,
   type LeaveRequestFormState,
   type LeaveRequestPageProps,
 } from "./types";
-import { leaveStatusLabels, leaveTypeLabels } from "./helpers";
+import { leaveStatusLabels, leaveTypeLabels } from "./constants";
 import { LeaveRequestTable } from "./component";
 
 export function LeaveRequestPage({

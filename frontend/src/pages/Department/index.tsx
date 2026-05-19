@@ -22,8 +22,8 @@ import {
 } from "../../services/employeeService";
 import { toastifyService } from "../../services/toastifyService";
 import { MainLayout } from "../../components/MainLayout";
-import { FormActions } from "../Employee/components";
-import { nullableText } from "../Employee/helpers";
+import { FormActions } from "../../components/FormActions";
+import { nullableText } from "../../utils/workforce";
 import { DepartmentTable } from "./component";
 import {
   emptyDepartmentForm,

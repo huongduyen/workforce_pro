@@ -1,6 +1,6 @@
-import {Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
+import { Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import type { DepartmentTableProps } from "./types";
-import { ActionCell, EmptyRow, TableShell } from "../Employee/components";
+import { ActionCell, EmptyRow, TableShell } from "../../components/DataTable";
 
 export function DepartmentTable({
   departments,

@@ -1,17 +1,18 @@
 .container {
     display: flex;
-    min-height: 100vh; 
+    height: 100dvh;
     padding: 20px;
-    box-sizing: border-box;
     flex-wrap: wrap;
-    max-width: 100%;
-    overflow-y: hidden; 
+    width: 100%;
+    overflow: hidden;
 }
 
 .login-page {
     font-family: 'Inter', Arial, sans-serif;
     flex: 1;
     display: flex;
+    min-width: 0;
+    min-height: 0;
 }
 
 .login-container {
@@ -23,7 +24,9 @@
     justify-content: center;
     align-items: center;
     position: relative;
-    max-height: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .login-header {
@@ -50,10 +53,9 @@
 .login-form {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: clamp(0.65rem, 1.4vh, 1rem);
     width: 100%;
     max-width: 400px;
-    flex: 1;
     justify-content: flex-start;
 }
 
@@ -346,6 +348,7 @@
     border-radius: 10px;
     overflow: hidden;
     min-width: 0;
+    min-height: 0;
 }
 
 .illustration-content {
@@ -440,6 +443,22 @@
     background: rgba(255, 255, 255, 0.1);
     border-radius: 50%;
     animation: float 8s ease-in-out infinite;
+}
+
+@media (max-width: 900px) {
+    .container {
+        padding: 12px;
+        flex-wrap: nowrap;
+    }
+
+    .illustration-container {
+        display: none;
+    }
+
+    .login-container {
+        border-radius: 10px;
+        padding: 1.5rem 1rem;
+    }
 }
 
 @keyframes float {
