@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -51,8 +49,10 @@ export const Signup = ({ onToggleToLogin }: SignupProps) => {
 
     try {
       // Only send email and password to the service
-      const { confirmPassword, ...signupData } = data;
-      await userService.register(signupData);
+      await userService.register({
+        email: data.email,
+        password: data.password,
+      });
       setSuccess(true);
       form.reset();
       // Redirect to login after 2 seconds
@@ -61,8 +61,12 @@ export const Signup = ({ onToggleToLogin }: SignupProps) => {
           onToggleToLogin();
         }
       }, 2000);
-    } catch (err: any) {
-      setError(err.message || "Registration failed. Please try again.");
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Registration failed. Please try again.";
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -72,7 +76,6 @@ export const Signup = ({ onToggleToLogin }: SignupProps) => {
     <StyledContainer maxWidth={false}>
       <StyledCard elevation={8}>
         <CardContent>
-          {/* Header */}
           <Box textAlign="center" mb={3}>
             <Typography
               variant="h4"
@@ -87,21 +90,18 @@ export const Signup = ({ onToggleToLogin }: SignupProps) => {
             </Typography>
           </Box>
 
-          {/* Error Alert */}
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
               {error}
             </Alert>
           )}
 
-          {/* Success Alert */}
           {success && (
             <Alert severity="success" sx={{ mb: 2 }}>
               Account created successfully! Redirecting to login...
             </Alert>
           )}
 
-          {/* Signup Form */}
           <Box
             component="form"
             onSubmit={form.handleSubmit(onSubmit)}
@@ -191,7 +191,6 @@ export const Signup = ({ onToggleToLogin }: SignupProps) => {
             </Button>
           </Box>
 
-          {/* Toggle to Login */}
           {onToggleToLogin && (
             <Box
               textAlign="center"

@@ -6,14 +6,13 @@ import { LeaveRequestPage } from './pages/LeaveRequest';
 import { LoginPage } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { ToastProvider } from './components/ToastProvider';
-
-type EntityPage = 'employees' | 'departments' | 'attendance' | 'leave';
+import type { TabKey } from './types/navigation';
 
 // Main App Component
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showLogin, setShowLogin] = useState(true);
-  const [currentPage, setCurrentPage] = useState<EntityPage>('employees');
+  const [currentPage, setCurrentPage] = useState<TabKey>('employees');
 
   // Check if user is already logged in on app load
   useEffect(() => {

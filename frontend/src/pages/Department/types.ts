@@ -1,4 +1,5 @@
 import type { Department } from "../../services/employeeService";
+import type { TabKey } from "../../types/navigation";
 
 export interface DialogState {
   mode: "create" | "edit";
@@ -23,5 +24,5 @@ export interface DepartmentTableProps {
 
 export interface DepartmentPageProps {
   onLogout: () => void;
-  onPageChange?: (page: "employees" | "departments" | "attendance" | "leave") => void;
+  onPageChange?: (page: TabKey) => void;
 }

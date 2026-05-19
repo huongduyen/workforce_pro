@@ -156,7 +156,7 @@ export function Sidebar({
       sx={{
         width: drawerWidth,
         flexShrink: 0,
-        height: '100vh',
+        height: '100dvh',
         position: 'sticky',
         top: 0,
         overflow: 'hidden',

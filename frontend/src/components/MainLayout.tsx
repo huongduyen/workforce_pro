@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Box, AppBar, Toolbar, IconButton, useMediaQuery, useTheme } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Sidebar } from './Sidebar';
-import type { TabKey } from '../pages/Employee/types';
+import type { TabKey } from '../types/navigation';
 
 interface MainLayoutProps {
   activeTab: TabKey;
   onTabChange: (tab: TabKey) => void;
   onLogout: () => void;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function MainLayout({
@@ -27,7 +27,7 @@ export function MainLayout({
   };
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', overflow: 'hidden' }}>
+    <Box sx={{ display: 'flex', height: '100dvh', overflow: 'hidden' }}>
       {/* Sidebar */}
       <Sidebar
         activeTab={activeTab}
@@ -38,7 +38,7 @@ export function MainLayout({
       />
 
       {/* Main Content */}
-      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Mobile Header */}
         {isMobile && (
           <AppBar 
@@ -68,6 +68,7 @@ export function MainLayout({
         <Box
           sx={{
             flex: 1,
+            minHeight: 0,
             p: isMobile ? 2 : 3,
             overflow: 'auto',
             background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',

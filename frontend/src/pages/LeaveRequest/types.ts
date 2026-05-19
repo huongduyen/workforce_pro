@@ -1,4 +1,5 @@
 import type { LeaveRequest, LeaveStatus, LeaveType } from "../../services/employeeService";
+import type { TabKey } from "../../types/navigation";
 
 export interface DialogState {
   mode: "create" | "edit";
@@ -31,5 +32,5 @@ export interface LeaveRequestTableProps {
 
 export interface LeaveRequestPageProps {
   onLogout: () => void;
-  onPageChange?: (page: "employees" | "departments" | "attendance" | "leave") => void;
+  onPageChange?: (page: TabKey) => void;
 }

@@ -1,4 +1,5 @@
 import type { Attendance, AttendanceStatus } from "../../services/employeeService";
+import type { TabKey } from "../../types/navigation";
 
 export interface DialogState {
   mode: "create" | "edit";
@@ -29,5 +30,5 @@ export interface AttendanceTableProps {
 
 export interface AttendancePageProps {
   onLogout: () => void;
-  onPageChange?: (page: "employees" | "departments" | "attendance" | "leave") => void;
+  onPageChange?: (page: TabKey) => void;
 }

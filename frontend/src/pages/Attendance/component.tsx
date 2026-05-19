@@ -1,6 +1,5 @@
 import {
   Chip,
- 
   Table,
   TableBody,
   TableCell,
@@ -8,8 +7,8 @@ import {
   TableRow,
 } from "@mui/material";
 import type { AttendanceTableProps } from "./types";
-import { ActionCell, EmptyRow, TableShell } from "../Employee/components";
-import { formatDate, getEmployeeName, toTimeInput } from "../Employee/helpers";
+import { ActionCell, EmptyRow, TableShell } from "../../components/DataTable";
+import { formatDate, getEmployeeName, toTimeInput } from "../../utils/workforce";
 import { attendanceStatusColors, attendanceStatusLabels } from "./constants";
 export function AttendanceTable({
   attendance,
